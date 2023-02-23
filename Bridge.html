@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Bridge</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+	</head>
+
+	<body>
+		<div id="container"></div>
+		
+		<div class="control">
+			<label id="label">H_pier</label>
+			<input id="height_slider" name="timelength" value="5.267" min="0" max="10" type="range" step="0.1">
+			<label id="value">5.2</label>
+		</div>
+		<div>
+			<a id="download_image">To Image</a>
+		</div>
+		
+
+		<!-- Import maps polyfill -->
+		<!-- Remove this when import maps will be widely supported -->
+		<!-- <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script> -->
+
+        <script src="three143.js"></script>
+        <script src="OrbitControls.js"></script>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "../build/three.module.js",
+					"three/addons/": "./jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+
+			let renderer, scene, camera, clock, orbitcontrol,shape_pier, mesh_pier;
+			
+			const height_slider = document.getElementById("height_slider");
+			const value_label = document.getElementById( 'value' );
+			const label = document.getElementById( 'label' );
+			const container = document.getElementById( 'container' );
+			const btn_saveimage = document.getElementById("download_image");
+
+			init();
+			animate();
+
+			function init() {
+
+
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color(0xffffff);
+				clock = new THREE.Clock();
+				
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.set( 30, 30, 30 );
+				camera.lookAt( scene.position );
+				camera.updateMatrix();
+
+				renderer = new THREE.WebGLRenderer( {
+					preserveDrawingBuffer: true 
+				} );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.shadowMap.enabled = true;
+				container.appendChild( renderer.domElement );
+
+
+				const x1 = -14.1475, y1 = 0;
+
+				const shape_road = new THREE.Shape();
+
+				shape_road.moveTo( x1, y1 );
+				shape_road.lineTo( x1, y1+4.5 );
+				shape_road.lineTo( x1+28.275, y1+4.5);
+				shape_road.lineTo( x1+28.275, y1 );
+				shape_road.lineTo( x1+26.475, y1 );
+				shape_road.bezierCurveTo( x1+20.475 , y1+8.34 , x1+14.875, y1, x1+14.875, y1 );
+				shape_road.lineTo(x1+13.4, y1);
+				shape_road.bezierCurveTo( x1+13.4, y1, x1+7.6, y1+8.34, x1+1.8, y1 );
+				shape_road.lineTo(x1, y1);
+				
+				const shape_abutment = new THREE.Shape();
+				const x2 = -14.1475, y2 = 0, x3 = 14.1475, y3 = 0;
+
+				shape_abutment.moveTo( x2, y2 );
+				shape_abutment.lineTo( x2, y2-2.554 );
+				shape_abutment.lineTo( x2-0.6, y2-2.554 );
+				shape_abutment.lineTo( x2-0.6, y2-3.154 );
+				shape_abutment.lineTo( x2-0.7, y2-3.154 );
+				shape_abutment.lineTo( x2-0.7, y2-3.254 );
+				shape_abutment.lineTo( x2+2.997, y2-3.254 );
+				shape_abutment.lineTo( x2+2.997, y2-3.154 );
+				shape_abutment.lineTo( x2+ 2.897, y2-3.154 );
+				shape_abutment.lineTo( x2+ 2.897, y2-2.554 );
+				shape_abutment.lineTo( x2+2.297, y2-2.554 );
+				shape_abutment.lineTo( x2+2.17, y2 );
+				shape_abutment.lineTo( x2, y2 );
+				
+				const shape_abutment_2 = new THREE.Shape();
+
+				shape_abutment_2.moveTo( x3, y3 );
+				shape_abutment_2.lineTo( x3, y3-2.554 );
+				shape_abutment_2.lineTo( x3+0.6, y3-2.554 );
+				shape_abutment_2.lineTo( x3+0.6, y3-3.154 );
+				shape_abutment_2.lineTo( x3+0.7, y3-3.154 );
+				shape_abutment_2.lineTo( x3+0.7, y3-3.254 );
+				shape_abutment_2.lineTo( x3-2.997, y3-3.254 );
+				shape_abutment_2.lineTo( x3-2.997, y3-3.154 );
+				shape_abutment_2.lineTo( x3-2.897, y3-3.154 );
+				shape_abutment_2.lineTo( x3-2.897, y3-2.554 );
+				shape_abutment_2.lineTo( x3-2.297, y3-2.554 );
+				shape_abutment_2.lineTo( x3-2.17, y3 );
+				shape_abutment_2.lineTo( x3, y3 );
+
+				shape_pier = new THREE.Shape();
+				const x4 = 0, y4 = 0;
+				
+				shape_pier.moveTo( x4, y4 );
+				shape_pier.lineTo( x4-1.1595, y4 );
+				shape_pier.lineTo( x4-1.4225, y4-5.267 );
+				shape_pier.lineTo( x4-2.0225, y4-5.267 );
+				shape_pier.lineTo( x4-2.0225, y4-5.867 );
+				shape_pier.lineTo( x4-2.1225, y4-5.867 );
+				shape_pier.lineTo( x4-2.1225, y4-5.967 );
+				shape_pier.lineTo( x4+2.1225, y4-5.967 );
+				shape_pier.lineTo( x4+2.1225, y4-5.867 );
+				shape_pier.lineTo( x4+2.0225, y4-5.867 );
+				shape_pier.lineTo( x4+2.0225, y4-5.267 );
+				shape_pier.lineTo( x4+1.4225, y4-5.267 );
+				shape_pier.lineTo( x4+1.15595, y4 );
+				shape_pier.lineTo( x4, y4 );
+
+				const extrudeSettings = {
+					depth: 5,
+					steps: 10,
+
+					// bevelSegments: 1
+				};
+				const geometry_road = new THREE.ExtrudeGeometry( shape_road, extrudeSettings );
+				// const material1 = new THREE.MeshLambertMaterial( { color: 0xb00000, wireframe: false } );
+
+				const geometry = new THREE.ShapeGeometry( shape_road );
+				// const material_road = new THREE.MeshBasicMaterial( { color: 0x808040 } );
+				const material_road = new THREE.MeshLambertMaterial( { color: 0x666666, emissive: 0x808f80 } );
+				//material_road.reflectivity = 0.5
+
+				// const material_text = new THREE.MeshBasicMaterial({ color: 0x000000, opacity: 0.8, wireframe: true, transparent: true });
+				const material_text = new THREE.MeshBasicMaterial({ color: 0x000000, opacity: 1, wireframe: false, transparent: true });
+
+				const mesh_road = new THREE.Mesh( geometry_road, material_road ) ;
+				const mesh_road1 = new THREE.Mesh( geometry_road, material_road ) ;
+				mesh_road.castShadow = true;
+				mesh_road.recieveShadow = true;
+				scene.add( mesh_road );
+
+				const geometry_abutment = new THREE.ExtrudeGeometry( shape_abutment, extrudeSettings) ;
+				// const material_abutment = new THREE.MeshBasicMaterial( { color: 0x808080 } );
+				const material_abutment = new THREE.MeshLambertMaterial( { color: 0x666666, emissive: 0x808080 } );
+
+				const mesh_abutment = new THREE.Mesh( geometry_abutment, material_abutment );
+				mesh_abutment.castShadow = true;
+				mesh_abutment.recieveShadow = true;
+				scene.add( mesh_abutment );
+
+				const geometry_abutment_2 = new THREE.ExtrudeGeometry( shape_abutment_2, extrudeSettings) ;
+				const mesh_abutment_2 = new THREE.Mesh( geometry_abutment_2, material_abutment );
+				mesh_abutment_2.castShadow = true;
+				mesh_abutment_2.recieveShadow = true;
+				scene.add( mesh_abutment_2 );
+
+				const geometry_pier = new THREE.ExtrudeGeometry( shape_pier, extrudeSettings) ;
+				const material_pier = new THREE.MeshBasicMaterial( { color: 0x808080 } );
+				mesh_pier = new THREE.Mesh( geometry_pier, material_abutment );
+				mesh_pier.castShadow = true;
+				mesh_pier.recieveShadow = true;
+
+				scene.add( mesh_pier );
+
+
+				// const light = new THREE.SpotLight( 0xffffff );
+				// light.position.set( 30,30,30 );
+				// scene.add( light );
+				// scene.add( new THREE.AmbientLight( 0x222222 ) );
+
+				const light = new THREE.SpotLight( 0xffffff );
+				// light.position.copy( camera.position );
+				light.position.set(30,50,30)
+				light.intensity = 1;
+				light.castShadow = true;
+				
+				console.log(light)
+				scene.add( light );
+
+
+				orbitcontrol = new THREE.OrbitControls( camera, renderer.domElement );
+        		orbitcontrol.update();
+
+				// const dataURL = renderer.domElement.toDataURL();
+				// var link = document.createElement("a");
+				// link.href = dataURL;
+				// link.download = 'Bridge.png';
+				// link.click();
+				// console.log(dataURL);
+
+        		orbitcontrol.addEventListener( 'change', render );
+
+				window.addEventListener( 'resize', onWindowResize );
+				height_slider.addEventListener( "input", heightchange_pier );
+				btn_saveimage.addEventListener("click", saveImage );
+			}
+			
+			function heightchange_pier(){
+				var height = height_slider.value;
+				//height = height.toFixed(1);
+				height = Number(height).toFixed(1);
+				console.log(typeof(height))
+				value_label.innerHTML = height;
+
+				const x4 = 0, y4 = 0;
+				scene.remove(mesh_pier)
+				const shape_pier_modify = new THREE.Shape();
+				shape_pier_modify.moveTo( x4, y4 );
+				shape_pier_modify.lineTo( x4-1.1595, y4 );
+				shape_pier_modify.lineTo( x4-1.4225, y4-height );
+				shape_pier_modify.lineTo( x4-2.0225, y4-height );
+				shape_pier_modify.lineTo( x4-2.0225, y4-height-0.6 );
+				shape_pier_modify.lineTo( x4-2.1225, y4-height-0.6 );
+				shape_pier_modify.lineTo( x4-2.1225, y4-height-0.7 );
+				shape_pier_modify.lineTo( x4+2.1225, y4-height-0.7 );
+				shape_pier_modify.lineTo( x4+2.1225, y4-height-0.6 );
+				shape_pier_modify.lineTo( x4+2.0225, y4-height-0.6 );
+				shape_pier_modify.lineTo( x4+2.0225, y4-height );
+				shape_pier_modify.lineTo( x4+1.4225, y4-height );
+				shape_pier_modify.lineTo( x4+1.15595, y4 );
+				shape_pier_modify.lineTo( x4, y4 );
+				
+
+				const extrudeSettings = {
+					depth: 5,
+					steps: 10,
+
+					// bevelSegments: 1
+				};
+
+				const geometry_pier = new THREE.ExtrudeGeometry( shape_pier_modify, extrudeSettings) ;
+				const material_pier = new THREE.MeshLambertMaterial( { color: 0x666666, emissive: 0x808080 } );
+				mesh_pier = new THREE.Mesh( geometry_pier, material_pier );
+				scene.add(mesh_pier);
+			}
+
+			function saveImage(){
+				const dataURL = renderer.domElement.toDataURL('image/jpeg', 1.0);
+				btn_saveimage.download = "Bridge.png";
+				btn_saveimage.href = dataURL;
+				console.log(renderer)
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+
+			}
+
+			function render() {
+				camera.updateMatrixWorld();
+				renderer.render( scene, camera );
+			}
+
+		</script>
+
+	</body>
+
+</html>
